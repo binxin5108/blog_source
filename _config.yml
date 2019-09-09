@@ -78,4 +78,6 @@ theme: landscape
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
-  type:
+  type: git
+  repository: https://GH_TOKEN@github.com/binxin5108/binxin5108.github.com.git	
+  branch: master
