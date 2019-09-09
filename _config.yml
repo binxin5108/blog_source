@@ -3,11 +3,11 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Hexo
+title: 彬心的博客
 subtitle:
 description:
 keywords:
-author: John Doe
+author: 彬心
 language: en
 timezone:
 
@@ -73,7 +73,7 @@ pagination_dir: page
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: landscape
+theme: pure
 
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
