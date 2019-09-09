@@ -15,6 +15,7 @@ cache:
 # 构建之前安装hexo-cli，因为接下来会用到
 before_install:
   - npm install -g hexo-cli
+  - npm install hexo-deployer-git --save
 
 # 安装依赖
 install:
