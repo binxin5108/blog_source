@@ -1,9 +1,11 @@
 ---
 title: SSH免密登录原理
-tags: []
-originContent: ''
-categories: []
+tags:
+  - linux
+categories:
+  - linux
 toc: false
+date: 2019-09-10 10:13:52
 ---
 
 
@@ -11,11 +13,10 @@ toc: false
 
 ### SSH免密登陆配置图示
 
-![SSH免密登陆配置](http://7xrysx.com1.z0.glb.clouddn.com/SSH%E5%85%8D%E5%AF%86%E7%99%BB%E5%BD%95%E9%85%8D%E7%BD%AE.jpg "ssh-mian-mi-deng-lu")
-<!-- more -->
+![SSH免密登陆配置](http://img.zhoubg.cn/SSH%E5%85%8D%E5%AF%86%E7%99%BB%E5%BD%95%E9%85%8D%E7%BD%AE.jpg)
 ### SSH免密登录原理图示
 
-![SSH免密登录原理](http://7xrysx.com1.z0.glb.clouddn.com/SSH%E5%85%8D%E5%AF%86%E7%99%BB%E5%BD%95%E5%8E%9F%E7%90%86.jpg)
+![SSH免密登录原理](http://img.zhoubg.cn/SSH%E5%85%8D%E5%AF%86%E7%99%BB%E5%BD%95%E5%8E%9F%E7%90%86.jpg)
 
 
 ## 具体配置操作
