@@ -78,9 +78,6 @@ theme: pure
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
 deploy:
-#- type: git
-#  repository: https://GH_TOKEN@github.com/binxin5108/binxin5108.github.com.git	
-#  branch: master
-  type: git
-  repository: https://GT_TOKEN@gitee.com/binchou/binchou.git
-  branch: master 
+ type: git
+ repository: https://GH_TOKEN@github.com/binxin5108/binxin5108.github.com.git	
+ branch: master
