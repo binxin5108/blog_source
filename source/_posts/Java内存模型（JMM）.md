@@ -2,7 +2,8 @@
 title: Java内存模型（JMM）
 tags:
   - Java并发
-categories: []
+categories:
+  - Java并发
 toc: false
 ---
 
