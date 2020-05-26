@@ -1,4 +1,5 @@
 ---
+
 title: Java同步块
 tags:
   - Java并发
@@ -170,5 +171,148 @@ public static MyStaticCounter{
 
 # `Lambda`表达式中的同步块
 
+我们甚至可以在Java `Lambda`表达式以及匿名类中使用同步块。
 
+下面是是一个内部包含同步块的 `lambda`表达式的示例。 注意，`lambda`表达式中同步块是同步在的`class`对象上， 当然也可以在另一个对象上进行同步，如果这样做更有意义的话（考虑到特定的用例），但是在本示例中使用`class`对象是可以的。
+
+```java
+import java.util.function.Consumer;
+
+public class SynchronizedExample {
+
+  public static void main(String[] args) {
+
+    Consumer<String> func = (String param) -> {
+
+      synchronized(SynchronizedExample.class) {
+
+        System.out.println(Thread.currentThread().getName() 
+                           + " step 1: " + param);
+
+        try {
+          Thread.sleep( (long) (Math.random() * 1000));
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+
+        System.out.println(Thread.currentThread().getName() +
+                    " step 2: " + param);
+      }
+
+    };
+      
+
+    Thread thread1 = new Thread(() -> {
+        func.accept("Parameter");
+    }, "Thread 1");
+
+    Thread thread2 = new Thread(() -> {
+        func.accept("Parameter");
+    }, "Thread 2");
+
+    thread1.start();
+    thread2.start();
+  }
+}
+```
+
+# Java 同步例子
+
+下面给出一个示例，它启动2个线程，并让它们两个都在`Counter`的同一实例上调用`add`方法。 一次仅一个线程将能够在同一实例上调用`add`方法，因为该方法在它所属的实例上是同步的。
+
+```java
+  public class Example {
+
+    public static void main(String[] args){
+      Counter counter = new Counter();
+      Thread  threadA = new CounterThread(counter);
+      Thread  threadB = new CounterThread(counter);
+
+      threadA.start();
+      threadB.start();
+    }
+  }
+```
+
+这是上面示例中使用到的两个类，`Counter`和`CounterThread`。
+
+```java
+  public class Counter{
+     
+     long count = 0;
+    
+     public synchronized void add(long value){
+       this.count += value;
+     }
+  }
+```
+
+```java
+  public class CounterThread extends Thread{
+
+     protected Counter counter = null;
+
+     public CounterThread(Counter counter){
+        this.counter = counter;
+     }
+
+     public void run() {
+         for(int i=0; i<10; i++){
+             counter.add(i);
+         }
+     }
+  }
+```
+分别创建了两个线程， 并使用了相同的`Counter`实例作为其构造函数的参数。因为`add`方法是实例同步方法，`Counter.add（）`方法在实例上是同步的。 因此，一次只有一个线程可以调用`add（）`方法， 另一个线程将等到第一个线程离开`add（）`方法之后才能执行该方法。
+
+如果两个线程引用了两个单独的`Counter`实例，则同时调用`add（）`方法将没有问题。 调用将针对不同的对象，因此调用的方法也将在不同的对象（拥有该方法的对象）上同步， 因此调用不会被阻塞。 看起来是这样的：
+
+```java
+public class Example {
+
+  public static void main(String[] args){
+    Counter counterA = new Counter();
+    Counter counterB = new Counter();
+    Thread  threadA = new CounterThread(counterA);
+    Thread  threadB = new CounterThread(counterB);
+
+    threadA.start();
+    threadB.start();
+  }
+}
+```
+
+请注意，线程A和线程B这两个线程不再引用相同的`Counter`实例。 `counterA`和`counterB`的`add()`方法在它们两个所属的实例上同步。 因此，在`counterA`上调用`add（）`不会阻止`counterB`对`add（）`的调用。
+
+# 同步和数据可见性
+
+如果不使用`synchronized`关键字（或`volatile`关键字），则无法保证当一个线程更改了与其他线程共享的变量的值时（例如所有线程都可以访问的对象），其他线程能看到更改后的值；无法保证一个线程何时将保留在CPU寄存器中的变量写回到主存储器中，也无法保证其他线程何时从主存储器“刷新” 变量的值到CPU寄存器中。
+
+``synchronized``关键字可以改变这一点， 当线程进入同步块时，它将刷新该线程可见的所有变量的值； 当线程退出同步块时，对该线程可见的变量的所有更改都将写回给主内存。 这类似于`volatile`关键字的工作方式。
+
+# 同步和指令重排
+
+Java编译器和Java虚拟机允许对代码中的指令进行重新排序，以使它们更快地执行，通常是通过把指令重新排序然后由CPU并行执行来实现。指令重新排序可能会导致多个线程同时执行的代码出现问题。 例如，如果对发生在同步块内部的变量的写操作重新排序，写操作最终执行可能发生在同步块外部。
+
+为了解决此问题，Java 对```synchronized```关键字修饰的同步块做了一些限制，对进入同步块之前、之中和之后的指令重新排序设置了一些限制。 这类似于`volatile`关键字所设置的限制。
+
+最终结果是，您可以确保您的代码正确运行，不会发生指令重新排序而导致最终该代码的行为不同于您编写的代码所期望的行为。
+
+# 到底在哪些对象上同步
+
+
+
+# 同步块的限制和替代品
+
+
+
+# 同步块的性能开销
+
+
+
+# 同步块重入
+
+
+
+# 集群中的同步块
 
