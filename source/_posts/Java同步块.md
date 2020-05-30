@@ -25,7 +25,7 @@ Java中同步块是用``synchronized ``关键字标记的。同步块在Java中�
 
 这些同步块是同步在不同的对象上的，每一种类型将在下面更详细地说明。
 
-#  实例方法同步
+#  实例方法同步块
 这是一个同步的实例方法：
 
 ```java
@@ -60,7 +60,7 @@ public class MyCounter {
 }
 ```
 
-# 静态方法同步
+# 静态方法同步块
 使用`synchronized`关键字标记的静态方法就是静态方法同步块
 
 ```java
@@ -100,7 +100,7 @@ public static MyStaticCounter{
 
 如果静态同步方法位于不同的类中，一个线程可以执行每个类中的静态同步方法而无需等待。不管类中的那个静态同步方法被调用，一个类只能有一个线程调用其静态同步方法。
 
-# 实例方法中同步块
+# 实例方法中代码同步块
 有时你不需要同步整个方法，而只需同步方法中的一部分。Java可以对方法的一部分进行同步。
 
 在非同步的Java方法中的同步代码块如下：
@@ -143,7 +143,7 @@ public static MyStaticCounter{
 
 如果第二个同步块中的监视对象是不同的对象，则同一时间可以分别有两个不同的线程分别调用这两个方法。
 
-# 静态方法中同步块
+# 静态方法中代码同步块
 
 同步块也可以在静态方法中使用。 这是上一节中与静态方法相同的两个示例。 这些方法在方法所属的类的类对象上同步：
 
@@ -298,21 +298,76 @@ Java编译器和Java虚拟机允许对代码中的指令进行重新排序，以
 
 最终结果是，您可以确保您的代码正确运行，不会发生指令重新排序而导致最终该代码的行为不同于您编写的代码所期望的行为。
 
-# 到底在哪些对象上同步
+# 在哪些对象上同步？
 
+我们多次提到了，同步块必须在某个对象上同步，实际上，您可以选择任何的对象，但是建议您不要在`String`对象或任何原始类型包装对象上进行同步，因为编译器可能会优化这些对象，以便在您的不同位置使用相同的实例，您以为您正在使用其他实例，但其实可能是同一个实例。看这个例子：
 
+```java
+synchronized("Hey") {
+   //do something in here.
+}
+```
+
+如果您有多个在字面量`String`值`"hey"`同步的同步块，则编译器实际上可能在幕后使用相同的`String`对象。结果是，这两个同步块随后都在同一对象上同步,那可能不是您想要的行为。
+
+使用原始类型包装器对象也是如此，看这个例子：
+
+```java
+synchronized(Integer.valueOf(1)) {
+   //do something in here.
+}
+```
+
+如果多次调用`Integer.valueOf（1）`，它实际上可能为相同的输入参数值返回相同的包装对象实例。这意味着，如果要在同一个原始包装对象上同步多个同步块（例如，将`Integer.valueOf（1）`多次用作监视对象），则会有这些同步块都在同一个对象上同步的风险，那也可能不是您想要的行为。
+
+为了安全起见，请在`this`或`new Object（）`上进行同步， Java编译器，Java 虚拟机或Java库不会在内部对其进行缓存或重用。
 
 # 同步块的限制和替代品
 
+Java中的同步块有几个限制。例如，Java中的同步块仅一次仅允许一个线程进入，但是，如果两个线程只想读取一个共享值而不更新它，该怎么办？这种操作应该是安全的。作为同步块的替代方法，您可以使用读写锁[Read / Write Lock](http://tutorials.jenkov.com/java-concurrency/read-write-locks.html)来保护代码，该锁比同步块具有更高级的锁定语义。 Java实际上附带了您可以使用的内置[ReadWriteLock](http://tutorials.jenkov.com/java-util-concurrent/readwritelock.html)类。
 
+如果要允许`N`个线程进入一个同步块，而不仅仅是一个线程，该怎么办？这时您可以使用信号量 [Semaphore](http://tutorials.jenkov.com/java-concurrency/semaphore.html)来实现该行为。 Java中也内置了 [Java Semaphore](http://tutorials.jenkov.com/java-util-concurrent/semaphore.html)类。
+
+同步块不能保证等待进入线程的线程以什么顺序访问同步块。如果您需要保证尝试进入同步块的线程能够以他们请求访问的确切顺序进行访问，那该怎么办？您需要自己实现公平 [Fairness](http://tutorials.jenkov.com/java-concurrency/starvation-and-fairness.html) 机制。
+
+如果您只有一个线程写入共享变量，而其他线程仅读取该变量怎么办？这样的话，您就可以只使用一个[volatile](http://tutorials.jenkov.com/java-concurrency/volatile.html)变量而无需进行任何同步。
 
 # 同步块的性能开销
 
+进入和退出同步块时会带来较小的性能开销，随着Java的发展，性能开销虽然下降了，但是仍然要付出很小的代价。
 
+如果代码会频繁的进入和退出同步块，则通常要慎重考虑进入和退出同步块的性能开销了。
+
+另外，请尽量使同步块的范围保持最小， 换句话说，仅同步真正需要同步的操作-避免阻止其他线程执行不必同步的操作。 同步块中只有绝对必要的指令，这样可以增加代码的并行性。
 
 # 同步块重入
 
+一旦线程进入同步块，我们就可以称该线程拥有了同步对象（监视对象）的锁。如果线程调用另一个方法，该方法在内部包含同步块的情况下回调第一个方法，则持有锁的线程可以重新进入同步块，因为线程（本身）持有锁而被不会阻塞，仅当其他线程持有该锁时才会阻塞。看这个例子：
 
+```java
+public class MyClass {
+    
+  List<String> elements = new ArrayList<String>();
+    
+  public void count() {
+    if(elements.size() == 0) {
+        return 0;
+    }
+    synchronized(this) {
+       elements.remove();
+       return 1 + count();  
+    }
+  }
+    
+}
+```
+
+暂时不用管上述计算列表元素的方法有没有意义，只需关注`count（）`方法内的同步块内部如何递归调用`count（）`方法即可。因此，线程调用`count（）`最终可能会多次进入同一同步块，这种情况是允许的。
+
+但是请记住，如果您不仔细设计代码，则线程进入多个同步块的设计可能导致嵌套的监视器锁定[nested monitor lockout](http://tutorials.jenkov.com/java-concurrency/nested-monitor-lockout.html)。
 
 # 集群中的同步块
 
+请记住，同步块仅阻止同一Java虚拟机中的线程进入该代码块。 如果在集群中的多个Java 虚拟机上运行相同的Java应用程序，则每个Java 虚拟机中的一个线程可能会同时进入该同步块。
+
+如果需要跨集群中所有Java 虚拟机进行同步，则将需要使用其他同步机制，而不仅仅是同步块。
