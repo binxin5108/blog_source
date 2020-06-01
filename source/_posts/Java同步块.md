@@ -322,7 +322,7 @@ synchronized(Integer.valueOf(1)) {
 
 为了安全起见，请在`this`或`new Object（）`上进行同步， Java编译器，Java 虚拟机或Java库不会在内部对其进行缓存或重用。
 
-# 同步块的限制和替代品
+# 同步块的局限性和替代方案
 
 Java中的同步块有几个限制。例如，Java中的同步块仅一次仅允许一个线程进入，但是，如果两个线程只想读取一个共享值而不更新它，该怎么办？这种操作应该是安全的。作为同步块的替代方法，您可以使用读写锁[Read / Write Lock](http://tutorials.jenkov.com/java-concurrency/read-write-locks.html)来保护代码，该锁比同步块具有更高级的锁定语义。 Java实际上附带了您可以使用的内置[ReadWriteLock](http://tutorials.jenkov.com/java-util-concurrent/readwritelock.html)类。
 
